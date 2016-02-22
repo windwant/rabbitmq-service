@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/rabbit
+       http://www.springframework.org/schema/rabbit/spring-rabbit-1.5.xsd">
+
+       <!-- 连接服务配置  -->
+       <rabbit:connection-factory id="connectionFactory" host="localhost" username="guest"
+                                  password="guest" port="5672"  />
+
+       <rabbit:admin connection-factory="connectionFactory"/>
+
+       <!-- queue 队列声明-->
+       <rabbit:queue id="queue_one" durable="true" auto-delete="false" exclusive="false" name="queue_one"/>
+
+
+       <!-- exchange queue binging key 绑定 -->
+       <rabbit:direct-exchange name="my-mq-exchange" durable="true" auto-delete="false" id="my-mq-exchange">
+              <rabbit:bindings>
+                     <rabbit:binding queue="queue_one" key="queue_one_key"/>
+              </rabbit:bindings>
+       </rabbit:direct-exchange>
+
+       <!-- spring amqp默认的是jackson 的一个插件,目的将生产者生产的数据转换为json存入消息队列，由于fastjson的速度快于jackson,这里替换为fastjson的一个实现 -->
+       <bean id="jsonMessageConverter"  class="com.rabbitmq.webapp.util.FastJsonMessageConverter"></bean>
+
+       <!-- spring template声明-->
+       <rabbit:template exchange="my-mq-exchange" id="amqpTemplate" connection-factory="connectionFactory"  message-converter="jsonMessageConverter"/>
+
+       <!-- 配置线程池 -->
+       <bean id ="taskExecutor"  class ="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" >
+              <!-- 线程池维护线程的最少数量 -->
+              <property name ="corePoolSize" value ="5" />
+              <!-- 线程池维护线程所允许的空闲时间 -->
+              <property name ="keepAliveSeconds" value ="30000" />
+              <!-- 线程池维护线程的最大数量 -->
+              <property name ="maxPoolSize" value ="1000" />
+              <!-- 线程池所使用的缓冲队列 -->
+              <property name ="queueCapacity" value ="200" />
+       </bean>
+       <!-- queue litener  观察 监听模式 当有消息到达时会通知监听在对应的队列上的监听对象-->
+       <rabbit:listener-container connection-factory="connectionFactory" acknowledge="auto" task-executor="taskExecutor">
+              <rabbit:listener queues="queue_one" ref="myMqListner"/>
+       </rabbit:listener-container>
+</beans>
