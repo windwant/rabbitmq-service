@@ -42,7 +42,12 @@
               <property name ="queueCapacity" value ="200" />
        </bean>
        <!-- queue litener  观察 监听模式 当有消息到达时会通知监听在对应的队列上的监听对象-->
-       <rabbit:listener-container connection-factory="connectionFactory" acknowledge="auto" task-executor="taskExecutor">
-              <rabbit:listener queues="queue_one" ref="myMqListner"/>
+       <!--<rabbit:listener-container connection-factory="connectionFactory" acknowledge="none" task-executor="taskExecutor">-->
+              <!--<rabbit:listener queues="queue_one" ref="myMqListner"/>-->
+       <!--</rabbit:listener-container>-->
+
+       <!--手动确认-->
+       <rabbit:listener-container connection-factory="connectionFactory" acknowledge="manual" task-executor="taskExecutor">
+              <rabbit:listener queues="queue_one" ref="myMqListnerWithReply"/>
        </rabbit:listener-container>
 </beans>
