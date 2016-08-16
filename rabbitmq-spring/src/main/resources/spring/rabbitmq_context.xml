@@ -14,21 +14,42 @@
        <rabbit:admin connection-factory="connectionFactory"/>
 
        <!-- queue 队列声明-->
-       <rabbit:queue id="queue_one" durable="true" auto-delete="false" exclusive="false" name="queue_one"/>
+       <rabbit:queue id="queue_test" durable="true" auto-delete="false" exclusive="false" name="queue_test"/>
+       <rabbit:queue id="queue_direct" durable="true" auto-delete="false" exclusive="false" name="queue_direct"/>
+       <rabbit:queue id="queue_fanout" durable="true" auto-delete="false" exclusive="false" name="queue_fanout"/>
+       <rabbit:queue id="queue_topic" durable="true" auto-delete="false" exclusive="false" name="queue_topic"/>
 
 
        <!-- exchange queue binging key 绑定 -->
-       <rabbit:direct-exchange name="my-mq-exchange" durable="true" auto-delete="false" id="my-mq-exchange">
+       <rabbit:direct-exchange name="my-direct-exchange" durable="true" auto-delete="false" id="my-direct-exchange">
               <rabbit:bindings>
-                     <rabbit:binding queue="queue_one" key="queue_one_key"/>
+                     <!--有routeKey-->
+                     <rabbit:binding queue="queue_direct" key="queue_direct_key"/>
               </rabbit:bindings>
        </rabbit:direct-exchange>
+
+       <rabbit:fanout-exchange name="my-fanout-exchange" durable="true" auto-delete="false" id="my-fanout-exchange">
+              <rabbit:bindings>
+                     <!--无routeKey-->
+                     <rabbit:binding queue="queue_fanout"/>
+              </rabbit:bindings>
+       </rabbit:fanout-exchange>
+
+       <rabbit:topic-exchange name="my-topic-exchange" durable="true" auto-delete="false" id="my-topic-exchange">
+              <rabbit:bindings>
+                     <!--pattern 匹配-->
+                     <rabbit:binding queue="queue_topic" pattern="#.topic"/>
+              </rabbit:bindings>
+       </rabbit:topic-exchange>
 
        <!-- spring amqp默认的是jackson 的一个插件,目的将生产者生产的数据转换为json存入消息队列，由于fastjson的速度快于jackson,这里替换为fastjson的一个实现 -->
        <bean id="jsonMessageConverter"  class="com.rabbitmq.spring.util.FastJsonMessageConverter"></bean>
 
        <!-- spring template声明-->
-       <rabbit:template exchange="my-mq-exchange" id="amqpTemplate" connection-factory="connectionFactory"  message-converter="jsonMessageConverter"/>
+       <rabbit:template queue="queue_test" id="queueTemplate" connection-factory="connectionFactory"  message-converter="jsonMessageConverter"/>
+       <rabbit:template exchange="my-direct-exchange" id="directTemplate" connection-factory="connectionFactory"  message-converter="jsonMessageConverter"/>
+       <rabbit:template exchange="my-fanout-exchange" id="fanoutTemplate" connection-factory="connectionFactory"  message-converter="jsonMessageConverter"/>
+       <rabbit:template exchange="my-topic-exchange" id="topicTemplate" connection-factory="connectionFactory"  message-converter="jsonMessageConverter"/>
 
        <!-- 配置线程池 -->
        <bean id ="taskExecutor"  class ="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" >
@@ -43,11 +64,14 @@
        </bean>
        <!-- queue litener  观察 监听模式 当有消息到达时会通知监听在对应的队列上的监听对象-->
        <!--<rabbit:listener-container connection-factory="connectionFactory" acknowledge="none" task-executor="taskExecutor">-->
-              <!--<rabbit:listener queues="queue_one" ref="myMqListner"/>-->
+              <!--<rabbit:listener queues="queue_direct" ref="myMqListner"/>-->
        <!--</rabbit:listener-container>-->
 
        <!--手动确认-->
        <rabbit:listener-container connection-factory="connectionFactory" acknowledge="manual" task-executor="taskExecutor">
-              <rabbit:listener queues="queue_one" ref="myMqListnerWithReply"/>
+              <rabbit:listener queues="queue_test" ref="myMqListnerWithReply"/>
+              <rabbit:listener queues="queue_direct" ref="myMqListnerWithReply"/>
+              <rabbit:listener queues="queue_fanout" ref="myMqListnerWithReply"/>
+              <rabbit:listener queues="queue_topic" ref="myMqListnerWithReply"/>
        </rabbit:listener-container>
 </beans>

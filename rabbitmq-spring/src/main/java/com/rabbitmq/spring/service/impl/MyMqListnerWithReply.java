@@ -18,7 +18,7 @@ public class MyMqListnerWithReply implements ChannelAwareMessageListener {
         String receiveMsg;
         try {
             receiveMsg = new String(message.getBody(),"utf-8");
-            System.out.println("get message: " + receiveMsg);
+            System.out.println("get message: " + message.getMessageProperties().getConsumerQueue() + "  " + message.getMessageProperties().getReceivedRoutingKey() + "  " + receiveMsg);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

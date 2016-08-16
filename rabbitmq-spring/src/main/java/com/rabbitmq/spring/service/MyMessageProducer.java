@@ -9,10 +9,18 @@ import org.springframework.stereotype.Component;
  */
 @Component("mqc")
 public class MyMessageProducer {
-
     @Autowired
-    public AmqpTemplate amqpTemplate;
+    public AmqpTemplate queueTemplate;
+    @Autowired
+    public AmqpTemplate directTemplate;
+    @Autowired
+    public AmqpTemplate fanoutTemplate;
+    @Autowired
+    public AmqpTemplate topicTemplate;
     public void sendDataToCrQueue(Object obj) {
-        amqpTemplate.convertAndSend("queue_one_key", obj);
+        queueTemplate.convertAndSend("queue_test", obj);
+        directTemplate.convertAndSend("queue_direct_key", obj);
+        fanoutTemplate.convertAndSend("", obj);
+        topicTemplate.convertAndSend("3.topic", obj);
     }
 }
