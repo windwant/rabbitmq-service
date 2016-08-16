@@ -3,7 +3,6 @@ package com.rabbitmq.origin.server;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.MessageProperties;
 import com.rabbitmq.origin.core.ConnectionMgr;
 import org.apache.commons.configuration.ConfigurationException;
 
@@ -11,19 +10,18 @@ import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 /**
- * 一发多收
+ * 广播 direct
  * Created by aayongche on 2016/8/15.
  */
-public class Server implements Runnable {
+public class PublishSubscribTopicServer implements Runnable {
     private Channel channel;
-    private final String queueName = "queue_test";
-    public Server(){
+    private final String EXCHANGE_NAME = "exchange_topic";
+    public PublishSubscribTopicServer(){
         try {
             ConnectionFactory connectionFactory = ConnectionMgr.getConnection();
             Connection connection = connectionFactory.newConnection();
             channel = connection.createChannel();
-            //queue name durable exclusive autodelete
-            channel.queueDeclare(queueName, true, false, false, null);
+            channel.exchangeDeclare(EXCHANGE_NAME, "topic");
         } catch (ConfigurationException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {
@@ -39,8 +37,8 @@ public class Server implements Runnable {
             while (true) {
                 String message = "hello " + i;
                 //text message
-                channel.basicPublish("", queueName, MessageProperties.PERSISTENT_TEXT_PLAIN, message.getBytes());
-                System.out.println("server send: " + message);
+                channel.basicPublish(EXCHANGE_NAME, "3.topic_test", null, message.getBytes());
+                System.out.println("server send routekey topic_test: " + message);
                 i++;
                 Thread.sleep(1500);
             }
@@ -50,7 +48,7 @@ public class Server implements Runnable {
     }
 
     public static void main(String[] args) {
-        new Thread(new Server()).start();
+        new Thread(new PublishSubscribTopicServer()).start();
     }
 
 }
