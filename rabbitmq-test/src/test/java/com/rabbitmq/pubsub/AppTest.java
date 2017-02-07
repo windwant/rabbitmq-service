@@ -1,4 +1,4 @@
-package com.rabbitmq.origin;
+package com.rabbitmq.pubsub;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

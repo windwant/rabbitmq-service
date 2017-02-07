@@ -1,6 +1,5 @@
-package com.rabbitmq.origin;
+package com.rabbitmq.pubsub;
 
-import com.rabbitmq.origin.server.Server;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;

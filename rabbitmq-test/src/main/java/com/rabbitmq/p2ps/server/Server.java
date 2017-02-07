@@ -1,10 +1,10 @@
-package com.rabbitmq.origin.server;
+package com.rabbitmq.p2ps.server;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.MessageProperties;
-import com.rabbitmq.origin.core.ConnectionMgr;
+import com.rabbitmq.core.ConnectionMgr;
 import org.apache.commons.configuration.ConfigurationException;
 
 import java.io.IOException;
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * 一发多收
- * Created by aayongche on 2016/8/15.
+ * Created by windwant on 2016/8/15.
  */
 public class Server implements Runnable {
     private Channel channel;

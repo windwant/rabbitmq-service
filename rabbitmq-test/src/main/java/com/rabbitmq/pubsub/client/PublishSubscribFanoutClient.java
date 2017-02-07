@@ -1,10 +1,10 @@
-package com.rabbitmq.origin.client;
+package com.rabbitmq.pubsub.client;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.QueueingConsumer;
-import com.rabbitmq.origin.core.ConnectionMgr;
+import com.rabbitmq.core.ConnectionMgr;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang.StringUtils;
 
@@ -12,8 +12,8 @@ import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 /**
- * 广播接收
- * Created by aayongche on 2016/8/15.
+ * 广播接收 fanout
+ * Created by windeant on 2016/8/15.
  */
 public class PublishSubscribFanoutClient implements Runnable {
     private QueueingConsumer consumer;

@@ -1,10 +1,10 @@
-package com.rabbitmq.origin.client;
+package com.rabbitmq.pubsub.client;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.QueueingConsumer;
-import com.rabbitmq.origin.core.ConnectionMgr;
+import com.rabbitmq.core.ConnectionMgr;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang.StringUtils;
 
@@ -12,21 +12,21 @@ import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 /**
- * 广播接收
- * Created by aayongche on 2016/8/15.
+ * 广播Direct接收
+ * Created by windwant on 2016/8/15.
  */
-public class PublishSubscribTopicClient implements Runnable {
+public class PublishSubscribDirectClient implements Runnable {
     private QueueingConsumer consumer;
-    private final String EXCHANGE_NAME = "exchange_topic";
-    public PublishSubscribTopicClient(){
+    private final String EXCHANGE_NAME = "exchange_direct";
+    public PublishSubscribDirectClient(){
         try {
             ConnectionFactory connectionFactory = ConnectionMgr.getConnection();
             Connection connection = connectionFactory.newConnection();
             Channel channel = connection.createChannel();
-            channel.exchangeDeclare(EXCHANGE_NAME, "topic");//fanoout模式
+            channel.exchangeDeclare(EXCHANGE_NAME, "direct");//direct
 
             String queueName = channel.queueDeclare().getQueue();//随机queue
-            channel.queueBind(queueName, EXCHANGE_NAME, "#.topic_test");//
+            channel.queueBind(queueName, EXCHANGE_NAME, "direct_test");//通道绑定队列
 //            channel.queueBind(queueName, EXCHANGE_NAME, "direct_test1");//
             consumer = new QueueingConsumer(channel);
             //autoAck false
@@ -57,6 +57,6 @@ public class PublishSubscribTopicClient implements Runnable {
     }
 
     public static void main(String[] args) {
-        new Thread(new PublishSubscribTopicClient()).start();
+        new Thread(new PublishSubscribDirectClient()).start();
     }
 }

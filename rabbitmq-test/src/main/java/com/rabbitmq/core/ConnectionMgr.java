@@ -1,4 +1,4 @@
-package com.rabbitmq.origin.core;
+package com.rabbitmq.core;
 
 import com.rabbitmq.client.ConnectionFactory;
 import org.apache.commons.configuration.Configuration;
@@ -6,7 +6,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
 /**
- * Created by aayongche on 2016/8/15.
+ * Created by windwant on 2016/8/15.
  */
 public class ConnectionMgr {
     private static ConnectionFactory connectionFactory;

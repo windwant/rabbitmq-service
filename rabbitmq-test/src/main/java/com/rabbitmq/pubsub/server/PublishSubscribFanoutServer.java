@@ -1,17 +1,20 @@
-package com.rabbitmq.origin.server;
+package com.rabbitmq.pubsub.server;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.origin.core.ConnectionMgr;
+import com.rabbitmq.core.ConnectionMgr;
 import org.apache.commons.configuration.ConfigurationException;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 /**
- * 广播
- * Created by aayongche on 2016/8/15.
+ * 广播 Fanout
+ * 不处理路由键。你只需要简单的将队列绑定到交换机上。
+ * 一个发送到交换机的消息都会被转发到与该交换机绑定的所有队列上。
+ * 很像子网广播，每台子网内的主机都获得了一份复制的消息。Fanout交换机转发消息是最快的。
+ * Created by windwant on 2016/8/15.
  */
 public class PublishSubscribFanoutServer implements Runnable {
     private Channel channel;
@@ -36,7 +39,7 @@ public class PublishSubscribFanoutServer implements Runnable {
         try {
             while (true) {
                 String message = "hello " + i;
-                //text message
+                //text message 发送消息 不需要routekey
                 channel.basicPublish(EXCHANGE_NAME, "", null, message.getBytes());
                 System.out.println("server send: " + message);
                 i++;
