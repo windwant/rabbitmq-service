@@ -43,7 +43,7 @@
        </rabbit:topic-exchange>
 
        <!-- spring amqp默认的是jackson 的一个插件,目的将生产者生产的数据转换为json存入消息队列，由于fastjson的速度快于jackson,这里替换为fastjson的一个实现 -->
-       <bean id="jsonMessageConverter"  class="com.rabbitmq.spring.util.FastJsonMessageConverter"></bean>
+       <bean id="jsonMessageConverter"  class="org.windwant.rabbitmq.spring.util.FastJsonMessageConverter"></bean>
 
        <!-- spring template声明-->
        <rabbit:template queue="queue_test" id="queueTemplate" connection-factory="connectionFactory"  message-converter="jsonMessageConverter"/>
