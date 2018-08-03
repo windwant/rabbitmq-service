@@ -1,4 +1,4 @@
-package org.windwant.rabbitmq.test.pubsub.server;
+package org.windwant.rabbitmq.test.pubsub.fanout;
 
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
@@ -11,20 +11,22 @@ import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 /**
- * 广播 direct
- * 处理路由键。需要将一个队列绑定到交换机上，要求该消息与一个特定的路由键完全匹配。这是一个完整的匹配!
+ * 广播 Fanout
+ * 不处理路由键。你只需要简单的将队列绑定到交换机上。
+ * 一个发送到交换机的消息都会被转发到与该交换机绑定的所有队列上。
+ * 很像子网广播，每台子网内的主机都获得了一份复制的消息。Fanout交换机转发消息是最快的。
  * Created by windwant on 2016/8/15.
  */
-public class DirectServer implements Runnable {
+public class FanoutServer implements Runnable {
     private Channel channel;
-    private final String EXCHANGE_NAME = "exchange_direct";
-    private final String ROUTE_KEY = "pubsub_direct_route_key";
-    public DirectServer(){
+    private final String EXCHANGE_NAME = "exchange_fanout";
+    private final String ROUTE_KEY = "";
+    public FanoutServer(){
         try {
             ConnectionFactory connectionFactory = ConnectionMgr.getConnection();
-            Connection connection = connectionFactory.newConnection();//获取连接
-            channel = connection.createChannel();//获取连接通道
-            channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.DIRECT);//声明交换机 名称  类型
+            Connection connection = connectionFactory.newConnection();
+            channel = connection.createChannel();
+            channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.FANOUT);
         } catch (ConfigurationException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {
@@ -39,9 +41,9 @@ public class DirectServer implements Runnable {
         try {
             while (true) {
                 String message = "hello " + i;
-                //text message 广播消息 交换机名称 routekey
+                //text message 发送消息 不需要routekey
                 channel.basicPublish(EXCHANGE_NAME, ROUTE_KEY, null, message.getBytes());
-                System.out.println("server send routekey pubsub_direct_route_key: " + message);
+                System.out.println("server send: " + message);
                 i++;
                 Thread.sleep(1500);
             }
@@ -51,7 +53,7 @@ public class DirectServer implements Runnable {
     }
 
     public static void main(String[] args) {
-        new Thread(new DirectServer()).start();
+        new Thread(new FanoutServer()).start();
     }
 
 }

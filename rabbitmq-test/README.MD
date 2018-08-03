@@ -1,3 +1,38 @@
-pub/sub：搜有接收端可以接受形同的信息
+1. p2ps：一条消息只能被一个接收端接收确认，多个消费者竞争获取消息。
 
-p2ps：一条消息只能被一个接收端接收确认
+sender-》queue-》receiver 发送端直接将消息发送到queue，消费者直接从queue消费信息
+
+queue：消息存储
+
+
+2. pub/sub：所有消费者可以接收相同的信息，
+
+使用Exchanges交换机，发送者只负责将消息发送到交换机，不关心消息存储
+
+Exchanges：一方面接收发送者消息，另一方面将信息发送到队列
+
+Exchanges type（direct、fanout、topic、headers）决定怎么处理消息
+
+附：默认使用 “” 空串指代默认exchange，消息通过默认exchange路由到指定的队列。
+
+临时队列：每次连接时使用空队列，
+
+每次连接时，创建随机临时队列；每次断开连接时，删除队列。
+
+
+>fanout：将接收到的信息广播发送至所有它直到的队列
+
+rabbitmqctl list_exchanges：amqp.* 默认创建的exchange
+
+>
+
+
+
+
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-package org.windwant.rabbitmq.test.pubsub.client;
+package org.windwant.rabbitmq.test.pubsub.topic;
 
 import com.rabbitmq.client.*;
 import org.windwant.rabbitmq.test.core.ConnectionMgr;

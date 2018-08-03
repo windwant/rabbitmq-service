@@ -1,4 +1,4 @@
-package org.windwant.rabbitmq.test.pubsub.client;
+package org.windwant.rabbitmq.test.pubsub.fanout;
 
 import com.rabbitmq.client.*;
 import com.rabbitmq.client.DefaultConsumer;
