@@ -14,7 +14,7 @@ import java.util.concurrent.TimeoutException;
 public class TopicClient {
     private DefaultConsumer consumer;
     private final String EXCHANGE_NAME = "exchange_topic";
-    private final String ROUTE_KEY_PATTERN = "#.topic_test";
+    private final String ROUTE_KEY_PATTERN = "*.topic_test.#"; //匹配第二个单词为topic_test的route_key消息
     public void run(){
         try {
             ConnectionFactory connectionFactory = ConnectionMgr.getConnection();
@@ -29,7 +29,7 @@ public class TopicClient {
                 @Override
                 public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                     String message = new String(body, "UTF-8");
-                    System.out.println(Thread.currentThread().getName() + " Received '" + message + "'");
+                    System.out.println(Thread.currentThread().getName() + " Received envelope: " + envelope.toString() + ", msg: " + message);
                 }
             };
             //autoAck false

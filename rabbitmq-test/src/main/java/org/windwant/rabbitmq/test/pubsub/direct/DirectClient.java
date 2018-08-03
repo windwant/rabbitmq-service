@@ -31,7 +31,7 @@ public class DirectClient {
                 @Override
                 public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
                     String message = new String(body, "UTF-8");
-                    System.out.println(Thread.currentThread().getName() + " Received '" + message + "'");
+                    System.out.println(Thread.currentThread().getName() + " Received envelope: " + envelope.toString() + ", msg: " + message);
                     channel.basicAck(envelope.getDeliveryTag(), false);
                 }
             };

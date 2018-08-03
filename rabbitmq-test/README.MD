@@ -19,12 +19,30 @@ Exchanges type（direct、fanout、topic、headers）决定怎么处理消息
 
 每次连接时，创建随机临时队列；每次断开连接时，删除队列。
 
+>direct: 将接收到的信息发送至绑定的队列上指定routekey的队列。根据routekey routing路由
 
->fanout：将接收到的信息广播发送至所有它直到的队列
+>fanout：将接收到的信息广播发送至所有它知道的队列
 
 rabbitmqctl list_exchanges：amqp.* 默认创建的exchange
 
->
+>topic：特定标识route_key消息将被发送至绑定匹配route_key的队列。
+
+
+
+注意：
+
+和direct的区别是，route_key的使用；
+
+topic使用的route_key：‘.’分割的一些列关键词，最对255 bytes
+
+topic队列绑定route_key可以使用通配符匹配
+
+* 匹配一个词组；#匹配一个或者多个词组
+
+*.beijing.#：匹配第二个单词为beijing的route_key
+
+
+附：topic exchange可以模拟其它exchange
 
 
 
