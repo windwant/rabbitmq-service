@@ -3,19 +3,18 @@ package org.windwant.rabbitmq.test.p2ps.client;
 import com.rabbitmq.client.*;
 import org.windwant.rabbitmq.test.core.ConnectionMgr;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 /**
  * 多个接收端
  * Created by windwant on 2016/8/15.
  */
-public class Client implements Runnable {
+public class Client{
     private DefaultConsumer consumer;
     private final String queueName = "queue_test";
-    public Client(){
+    public void run(){
         try {
             ConnectionFactory connectionFactory = ConnectionMgr.getConnection();
             Connection connection = connectionFactory.newConnection();
@@ -27,10 +26,21 @@ public class Client implements Runnable {
 
             consumer = new DefaultConsumer(channel){
                 @Override
-                public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
-                    String message = new String(body, "UTF-8");
-                    System.out.println(" [x] Received '" + message + "'");
-                    channel.basicAck(envelope.getDeliveryTag(), false);
+                public void handleDelivery(String consumerTag, final Envelope envelope, AMQP.BasicProperties properties, final byte[] body) throws IOException {
+                    final String message = new String(body, "UTF-8");
+                    final Envelope tenvelope = envelope;
+                    //业务线程处理
+                    service.submit(new Runnable() {
+                        public void run() {
+                            System.out.println(Thread.currentThread().getName() + " Received '" + message + "'");
+                            try {
+                                //确认消息
+                                channel.basicAck(tenvelope.getDeliveryTag(), false);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
                 }
             };
             //autoAck false
@@ -44,23 +54,8 @@ public class Client implements Runnable {
         }
     }
 
-    public void run(){
-//        try {
-//            while (true) {
-//                QueueingConsumer.Delivery delivery = consumer.nextDelivery();
-//                String message = new String(delivery.getBody());
-//                if(StringUtils.isNotEmpty(message)) {
-//                    System.out.println(message);
-//                    consumer.getChannel().basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-//                }
-//                Thread.sleep(500);
-//            }
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-    }
+    ExecutorService service = new ThreadPoolExecutor(10, 10, 0, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1000));
 
-    public static void main(String[] args) {
-        new Thread(new Client()).start();
+    public static void main(String[] args) {new Client().run();
     }
 }

@@ -23,10 +23,10 @@ public class ConnectionMgr {
     public static ConnectionFactory getConnection() throws ConfigurationException {
         if(connectionFactory == null){
             connectionFactory = new ConnectionFactory();
-            connectionFactory.setHost("localhost");
-            connectionFactory.setPort(5672);
-            connectionFactory.setUsername("guest");
-            connectionFactory.setPassword("guest");
+            connectionFactory.setHost(getConfig().getString("rabbitmq.host"));
+            connectionFactory.setPort(getConfig().getInteger("rabbitmq.port", 5672));
+            connectionFactory.setUsername(getConfig().getString("rabbitmq.username"));
+            connectionFactory.setPassword(getConfig().getString("rabbitmq.passwd"));
         }
         return connectionFactory;
     }

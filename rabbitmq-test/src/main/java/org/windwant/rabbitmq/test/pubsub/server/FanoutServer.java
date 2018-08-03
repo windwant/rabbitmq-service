@@ -1,5 +1,6 @@
 package org.windwant.rabbitmq.test.pubsub.server;
 
+import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -16,15 +17,16 @@ import java.util.concurrent.TimeoutException;
  * 很像子网广播，每台子网内的主机都获得了一份复制的消息。Fanout交换机转发消息是最快的。
  * Created by windwant on 2016/8/15.
  */
-public class PublishSubscribFanoutServer implements Runnable {
+public class FanoutServer implements Runnable {
     private Channel channel;
     private final String EXCHANGE_NAME = "exchange_fanout";
-    public PublishSubscribFanoutServer(){
+    private final String ROUTE_KEY = "";
+    public FanoutServer(){
         try {
             ConnectionFactory connectionFactory = ConnectionMgr.getConnection();
             Connection connection = connectionFactory.newConnection();
             channel = connection.createChannel();
-            channel.exchangeDeclare(EXCHANGE_NAME, "fanout");
+            channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.FANOUT);
         } catch (ConfigurationException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {
@@ -40,7 +42,7 @@ public class PublishSubscribFanoutServer implements Runnable {
             while (true) {
                 String message = "hello " + i;
                 //text message 发送消息 不需要routekey
-                channel.basicPublish(EXCHANGE_NAME, "", null, message.getBytes());
+                channel.basicPublish(EXCHANGE_NAME, ROUTE_KEY, null, message.getBytes());
                 System.out.println("server send: " + message);
                 i++;
                 Thread.sleep(1500);
@@ -51,7 +53,7 @@ public class PublishSubscribFanoutServer implements Runnable {
     }
 
     public static void main(String[] args) {
-        new Thread(new PublishSubscribFanoutServer()).start();
+        new Thread(new FanoutServer()).start();
     }
 
 }
