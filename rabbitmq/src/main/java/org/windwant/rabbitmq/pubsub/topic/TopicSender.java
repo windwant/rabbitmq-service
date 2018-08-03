@@ -21,9 +21,7 @@ public class TopicSender implements Runnable {
     private final String EXCHANGE_NAME = "exchange_topic";
     private final String ROUTE_KEY_PATTERN = ".topic_test."; //
     public TopicSender(){
-        try {
-            ConnectionFactory connectionFactory = ConnectionMgr.getConnection();
-            Connection connection = connectionFactory.newConnection();
+        try (Connection connection = ConnectionMgr.getConnection()){
             channel = connection.createChannel();
             channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.TOPIC);
         } catch (ConfigurationException e) {

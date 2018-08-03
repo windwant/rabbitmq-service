@@ -1,9 +1,13 @@
 package org.windwant.rabbitmq.core;
 
+import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by windwant on 2016/8/15.
@@ -20,7 +24,7 @@ public class ConnectionMgr {
         return configuration;
     }
 
-    public static ConnectionFactory getConnection() throws ConfigurationException {
+    public static ConnectionFactory getConnectionFactory() throws ConfigurationException {
         if(connectionFactory == null){
             connectionFactory = new ConnectionFactory();
             connectionFactory.setHost(getConfig().getString("rabbitmq.host"));
@@ -29,5 +33,9 @@ public class ConnectionMgr {
             connectionFactory.setPassword(getConfig().getString("rabbitmq.passwd"));
         }
         return connectionFactory;
+    }
+
+    public static Connection getConnection() throws ConfigurationException, IOException, TimeoutException {
+        return getConnectionFactory().newConnection();
     }
 }

@@ -15,9 +15,7 @@ public class Consumer {
     private DefaultConsumer consumer;
     private final String queueName = "queue_test";
     public void run(){
-        try {
-            ConnectionFactory connectionFactory = ConnectionMgr.getConnection();
-            Connection connection = connectionFactory.newConnection();
+        try(Connection connection = ConnectionMgr.getConnection()) {
             final Channel channel = connection.createChannel();
             channel.queueDeclare(queueName, true, false, false, null);
             //使用了channel.basicQos(1)保证在接收端一个消息没有处理完时不会接收另一个消息，

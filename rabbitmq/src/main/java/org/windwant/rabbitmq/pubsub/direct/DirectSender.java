@@ -24,9 +24,7 @@ public class DirectSender implements Runnable {
 
 
     public DirectSender(){
-        try {
-            ConnectionFactory connectionFactory = ConnectionMgr.getConnection();
-            Connection connection = connectionFactory.newConnection();//获取连接
+        try (Connection connection = ConnectionMgr.getConnection()){
             channel = connection.createChannel();//获取连接通道
             channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.DIRECT);//声明交换机 名称  类型
         } catch (ConfigurationException e) {

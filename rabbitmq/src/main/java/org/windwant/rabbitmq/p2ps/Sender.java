@@ -18,9 +18,7 @@ public class Sender implements Runnable {
     private Channel channel;
     private final String queueName = "queue_test";
     public Sender(){
-        try {
-            ConnectionFactory connectionFactory = ConnectionMgr.getConnection();
-            Connection connection = connectionFactory.newConnection();
+        try (Connection connection = ConnectionMgr.getConnection()){
             channel = connection.createChannel();
             //queue name durable exclusive autodelete
             channel.queueDeclare(queueName, true, false, false, null);

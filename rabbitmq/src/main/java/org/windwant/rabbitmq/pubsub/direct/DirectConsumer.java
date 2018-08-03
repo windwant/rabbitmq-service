@@ -19,9 +19,7 @@ public class DirectConsumer {
     private final String EXCHANGE_NAME = "exchange_direct";
 
     public void run(List<String> routeKeys){
-        try {
-            ConnectionFactory connectionFactory = ConnectionMgr.getConnection();
-            Connection connection = connectionFactory.newConnection();
+        try (Connection connection = ConnectionMgr.getConnection()){
             final Channel channel = connection.createChannel();
             channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.DIRECT);//direct 模式
 

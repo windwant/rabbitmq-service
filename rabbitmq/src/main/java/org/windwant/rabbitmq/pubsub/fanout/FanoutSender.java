@@ -22,9 +22,7 @@ public class FanoutSender implements Runnable {
     private final String EXCHANGE_NAME = "exchange_fanout";
     private final String ROUTE_KEY = "";
     public FanoutSender(){
-        try {
-            ConnectionFactory connectionFactory = ConnectionMgr.getConnection();
-            Connection connection = connectionFactory.newConnection();
+        try (Connection connection = ConnectionMgr.getConnection()){
             channel = connection.createChannel();
             channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.FANOUT);
         } catch (ConfigurationException e) {
