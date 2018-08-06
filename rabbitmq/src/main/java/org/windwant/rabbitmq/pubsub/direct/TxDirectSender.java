@@ -4,9 +4,9 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
+import org.apache.commons.configuration.ConfigurationException;
 import org.windwant.rabbitmq.Constants;
 import org.windwant.rabbitmq.core.ConnectionMgr;
-import org.apache.commons.configuration.ConfigurationException;
 
 import java.io.IOException;
 import java.util.concurrent.ThreadLocalRandom;
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeoutException;
  * 处理路由键。需要将一个队列绑定到交换机上，要求该消息与一个特定的路由键完全匹配。这是一个完整的匹配!
  * Created by windwant on 2016/8/15.
  */
-public class DirectSender implements Runnable {
+public class TxDirectSender implements Runnable {
     private Channel channel;
     private final String EXCHANGE_NAME = "exchange_direct";
     private final String ROUTE_KEY = "pubsub_direct_route_key";
@@ -25,7 +25,7 @@ public class DirectSender implements Runnable {
     private Connection connection = null;
 
 
-    public DirectSender(){
+    public TxDirectSender(){
         try {
             connection = ConnectionMgr.getConnection();
             channel = connection.createChannel();//获取连接通道
@@ -42,7 +42,8 @@ public class DirectSender implements Runnable {
     public void run(){
         int i = 0;
         try {
-            while (true) {
+            channel.txSelect(); //启动事务，
+            while (i < 10) {
                 //text message 广播消息 交换机名称 routekey 发送相应消息到指定交换机
                 String etype = Constants.routeKeys.get(ThreadLocalRandom.current().nextInt(Constants.routeKeys.size()));
                 String message = Constants.routekey_msgtype.get(etype) + " message " + i;
@@ -55,15 +56,16 @@ public class DirectSender implements Runnable {
                 channel.basicPublish(EXCHANGE_NAME, etype, props, message.getBytes());
                 System.out.println("server send routekey: " + etype + ", msg: " + message);
                 i++;
-                Thread.sleep(1500);
+                Thread.sleep(500);
             }
+            channel.txCommit(); //一次性提交
         }catch (Exception e){
             e.printStackTrace();
         }
     }
 
     public static void main(String[] args) {
-        new Thread(new DirectSender()).start();
+        new Thread(new TxDirectSender()).start();
     }
 
 }
