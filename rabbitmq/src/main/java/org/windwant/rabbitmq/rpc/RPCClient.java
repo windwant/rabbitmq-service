@@ -28,11 +28,11 @@ public class RPCClient {
     private String replyQueueName;
     Connection connection = null;
 
-    public RPCClient() {
+    public RPCClient() throws TimeoutException, ConfigurationException, IOException {
+        connection = ConnectionMgr.getConnection();
     }
 
     public String call(String message) throws IOException, InterruptedException, TimeoutException, ConfigurationException {
-        connection = ConnectionMgr.getConnection();
         channel = connection.createChannel();
         replyQueueName = channel.queueDeclare().getQueue();
         //关联id
@@ -57,8 +57,12 @@ public class RPCClient {
         return response.take();
     }
     
-    public void close() throws IOException {
+    public void closeConn() throws IOException {
         connection.close();
+    }
+
+    public void closeChannel() throws TimeoutException, IOException {
+        channel.close();
     }
 
     public static void main(String[] argv) {
@@ -71,13 +75,21 @@ public class RPCClient {
                 System.out.println(" [x] Requesting fib(" + num + ")");
                 response = fibonacciRpc.call(String.valueOf(num));
                 System.out.println(" [.] Got '" + response + "'");
-                fibonacciRpc.close();
+                fibonacciRpc.closeChannel();
             }
         }
         catch  (IOException | TimeoutException | InterruptedException e) {
             e.printStackTrace();
         } catch (ConfigurationException e) {
             e.printStackTrace();
+        }finally {
+            try {
+                fibonacciRpc.closeConn();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
+
+
 }
