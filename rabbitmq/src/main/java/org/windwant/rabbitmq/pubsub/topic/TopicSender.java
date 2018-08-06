@@ -13,6 +13,8 @@ import java.util.concurrent.TimeoutException;
 /**
  * 广播 topics
  * 将路由键和某模式进行匹配。此时队列需要绑定到一个模式上。符号“#”匹配一个或多个词，符号“*”匹配不多不少一个词
+ * “*” 将‘.’视为分隔符；
+ * “#” 没有分块的概念，视‘.’为关键词的一部分
  * Created by windwant on 2016/8/15.
  */
 public class TopicSender implements Runnable {
