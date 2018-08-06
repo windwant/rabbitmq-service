@@ -6,6 +6,8 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Envelope;
 import org.apache.commons.configuration.ConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.windwant.rabbitmq.core.ConnectionMgr;
 
 import java.io.IOException;
@@ -15,23 +17,24 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * 每个信道上只能basic.consume一个consumer
+ */
 public class RPCClient {
+    private static final Logger logger = LoggerFactory.getLogger(RPCClient.class);
 
-    private Connection connection;
     private Channel channel;
     private String requestQueueName = "rpc_queue_test";
     private String replyQueueName;
+    Connection connection = null;
 
-    public RPCClient() throws IOException, TimeoutException, ConfigurationException {
+    public RPCClient() {
+    }
+
+    public String call(String message) throws IOException, InterruptedException, TimeoutException, ConfigurationException {
         connection = ConnectionMgr.getConnection();
         channel = connection.createChannel();
         replyQueueName = channel.queueDeclare().getQueue();
-
-    }
-
-    public String call(String message) throws IOException, InterruptedException {
-        //每次请求使用一个临时队列作为恢复队列
-//        replyQueueName = channel.queueDeclare().getQueue();
         //关联id
         AMQP.BasicProperties props = new AMQP.BasicProperties
                 .Builder()
@@ -51,10 +54,9 @@ public class RPCClient {
                 }
             }
         });
-
         return response.take();
     }
-
+    
     public void close() throws IOException {
         connection.close();
     }
@@ -64,22 +66,18 @@ public class RPCClient {
         String response;
         try{
             fibonacciRpc = new RPCClient();
-            int num = ThreadLocalRandom.current().nextInt(10);
-            System.out.println(" [x] Requesting fib(" + num + ")");
-            response = fibonacciRpc.call(String.valueOf(num));
-            System.out.println(" [.] Got '" + response + "'");
+            for (int i = 0; i < 100; i++) {
+                int num = ThreadLocalRandom.current().nextInt(10);
+                System.out.println(" [x] Requesting fib(" + num + ")");
+                response = fibonacciRpc.call(String.valueOf(num));
+                System.out.println(" [.] Got '" + response + "'");
+                fibonacciRpc.close();
+            }
         }
         catch  (IOException | TimeoutException | InterruptedException e) {
             e.printStackTrace();
         } catch (ConfigurationException e) {
             e.printStackTrace();
-        } finally {
-            if (fibonacciRpc!= null) {
-                try {
-                    fibonacciRpc.close();
-                }
-                catch (IOException _ignore) {}
-            }
         }
     }
 }
