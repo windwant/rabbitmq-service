@@ -3,7 +3,6 @@ package org.windwant.rabbitmq.pubsub.topic;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 import org.windwant.rabbitmq.core.ConnectionMgr;
 import org.apache.commons.configuration.ConfigurationException;
 
@@ -20,8 +19,10 @@ public class TopicSender implements Runnable {
     private Channel channel;
     private final String EXCHANGE_NAME = "exchange_topic";
     private final String ROUTE_KEY_PATTERN = ".topic_test."; //
+    private Connection connection = null;
     public TopicSender(){
-        try (Connection connection = ConnectionMgr.getConnection()){
+        try{
+            connection = ConnectionMgr.getConnection();
             channel = connection.createChannel();
             channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.TOPIC);
         } catch (ConfigurationException e) {

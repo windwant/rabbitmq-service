@@ -2,7 +2,6 @@ package org.windwant.rabbitmq.p2ps;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.MessageProperties;
 import org.windwant.rabbitmq.core.ConnectionMgr;
 import org.apache.commons.configuration.ConfigurationException;
@@ -17,8 +16,10 @@ import java.util.concurrent.TimeoutException;
 public class Sender implements Runnable {
     private Channel channel;
     private final String queueName = "queue_test";
+    private Connection connection = null;
     public Sender(){
-        try (Connection connection = ConnectionMgr.getConnection()){
+        try{
+            connection = ConnectionMgr.getConnection();
             channel = connection.createChannel();
             //queue name durable exclusive autodelete
             channel.queueDeclare(queueName, true, false, false, null);

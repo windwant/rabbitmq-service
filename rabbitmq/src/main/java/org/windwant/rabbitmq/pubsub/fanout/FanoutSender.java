@@ -3,7 +3,6 @@ package org.windwant.rabbitmq.pubsub.fanout;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 import org.windwant.rabbitmq.core.ConnectionMgr;
 import org.apache.commons.configuration.ConfigurationException;
 
@@ -21,8 +20,11 @@ public class FanoutSender implements Runnable {
     private Channel channel;
     private final String EXCHANGE_NAME = "exchange_fanout";
     private final String ROUTE_KEY = "";
+    private Connection connection = null;
+
     public FanoutSender(){
-        try (Connection connection = ConnectionMgr.getConnection()){
+        try {
+            connection = ConnectionMgr.getConnection();
             channel = connection.createChannel();
             channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.FANOUT);
         } catch (ConfigurationException e) {

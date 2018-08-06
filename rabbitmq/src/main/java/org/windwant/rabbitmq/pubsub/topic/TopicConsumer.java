@@ -15,8 +15,10 @@ public class TopicConsumer {
     private DefaultConsumer consumer;
     private final String EXCHANGE_NAME = "exchange_topic";
     private final String ROUTE_KEY_PATTERN = "*.topic_test.#"; //匹配第二个单词为topic_test的route_key消息
+    private Connection connection = null;
     public void run(){
-        try (Connection connection = ConnectionMgr.getConnection()){
+        try {
+            connection = ConnectionMgr.getConnection();
             Channel channel = connection.createChannel();
             channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.TOPIC);//topic模式
 

@@ -17,9 +17,11 @@ import java.util.concurrent.TimeoutException;
 public class DirectConsumer {
     private DefaultConsumer consumer;
     private final String EXCHANGE_NAME = "exchange_direct";
+    private Connection connection = null;
 
     public void run(List<String> routeKeys){
-        try (Connection connection = ConnectionMgr.getConnection()){
+        try {
+            connection = ConnectionMgr.getConnection();
             final Channel channel = connection.createChannel();
             channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.DIRECT);//direct 模式
 

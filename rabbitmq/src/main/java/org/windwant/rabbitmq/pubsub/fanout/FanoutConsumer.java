@@ -16,8 +16,10 @@ public class FanoutConsumer {
     private DefaultConsumer consumer;
     private final String EXCHANGE_NAME = "exchange_fanout";
     private final String ROUTE_KEY = "";
+    private Connection connection = null;
     public void run(){
-        try (Connection connection = ConnectionMgr.getConnection()){
+        try {
+            connection = ConnectionMgr.getConnection();
             Channel channel = connection.createChannel();
             channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.FANOUT);//fanoout模式
 

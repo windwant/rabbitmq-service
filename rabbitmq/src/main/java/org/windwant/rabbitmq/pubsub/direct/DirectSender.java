@@ -3,7 +3,6 @@ package org.windwant.rabbitmq.pubsub.direct;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 import org.windwant.rabbitmq.Constants;
 import org.windwant.rabbitmq.core.ConnectionMgr;
 import org.apache.commons.configuration.ConfigurationException;
@@ -22,9 +21,12 @@ public class DirectSender implements Runnable {
     private final String EXCHANGE_NAME = "exchange_direct";
     private final String ROUTE_KEY = "pubsub_direct_route_key";
 
+    private Connection connection = null;
+
 
     public DirectSender(){
-        try (Connection connection = ConnectionMgr.getConnection()){
+        try {
+            connection = ConnectionMgr.getConnection();
             channel = connection.createChannel();//获取连接通道
             channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.DIRECT);//声明交换机 名称  类型
         } catch (ConfigurationException e) {
