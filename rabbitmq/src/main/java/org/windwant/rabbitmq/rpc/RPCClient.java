@@ -18,7 +18,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeoutException;
 
 /**
- * 每个信道上只能basic.consume一个consumer
  */
 public class RPCClient {
     private static final Logger logger = LoggerFactory.getLogger(RPCClient.class);
@@ -30,10 +29,10 @@ public class RPCClient {
 
     public RPCClient() throws TimeoutException, ConfigurationException, IOException {
         connection = ConnectionMgr.getConnection();
+        channel = connection.createChannel();
     }
 
     public String call(String message) throws IOException, InterruptedException, TimeoutException, ConfigurationException {
-        channel = connection.createChannel();
         replyQueueName = channel.queueDeclare().getQueue();
         //关联id
         AMQP.BasicProperties props = new AMQP.BasicProperties
@@ -44,7 +43,7 @@ public class RPCClient {
 
         //发送请求消息
         channel.basicPublish("", requestQueueName, props, message.getBytes("UTF-8"));
-        final BlockingQueue<String> response = new ArrayBlockingQueue<String>(1);
+        final BlockingQueue<String> response = new ArrayBlockingQueue(1);
         //消费回复队列消息
         channel.basicConsume(replyQueueName, true, new DefaultConsumer(channel) {
             @Override
@@ -75,7 +74,6 @@ public class RPCClient {
                 System.out.println(" [x] Requesting fib(" + num + ")");
                 response = fibonacciRpc.call(String.valueOf(num));
                 System.out.println(" [.] Got '" + response + "'");
-                fibonacciRpc.closeChannel();
             }
         }
         catch  (IOException | TimeoutException | InterruptedException e) {
@@ -84,12 +82,13 @@ public class RPCClient {
             e.printStackTrace();
         }finally {
             try {
+                fibonacciRpc.closeChannel();
                 fibonacciRpc.closeConn();
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (TimeoutException e) {
                 e.printStackTrace();
             }
         }
     }
-
-
 }

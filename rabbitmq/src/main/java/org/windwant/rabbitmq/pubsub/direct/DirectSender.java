@@ -1,5 +1,6 @@
 package org.windwant.rabbitmq.pubsub.direct;
 
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -44,8 +45,14 @@ public class DirectSender implements Runnable {
             while (true) {
                 //text message 广播消息 交换机名称 routekey 发送相应消息到指定交换机
                 String etype = Constants.routeKeys.get(ThreadLocalRandom.current().nextInt(Constants.routeKeys.size()));
-                String message = Constants.routekey_msgtype.get(etype) + " message " + i;
-                channel.basicPublish(EXCHANGE_NAME, etype, null, message.getBytes());
+                String message = Constants.routekey_msgtype.get(etype) + " message消息 " + i;
+                AMQP.BasicProperties props = new AMQP.BasicProperties();
+                props.builder()
+                        .deliveryMode(2) //持久化消息
+                        .contentType("text/plain") //消息类型
+                        .contentEncoding("UTF-8")  //消息编码类型
+                        .build();
+                channel.basicPublish(EXCHANGE_NAME, etype, props, message.getBytes());
                 System.out.println("server send routekey: " + etype + ", msg: " + message);
                 i++;
                 Thread.sleep(1500);
