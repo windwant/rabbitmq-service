@@ -1,10 +1,10 @@
 # rabbitmq
 
 
-java spring rabbitmq
+>* java spring rabbitmq
 
 
-rabbitmq-spring: rabbitmq spring¼¯³ÉÅäÖÃ
+>* rabbitmq-spring: rabbitmq springé›†æˆé…ç½®
 
 
-rabbitmq-test£ºrabbitmq»ù±¾Ê¹ÓÃ µãµ½µã¡¢¹ã²¥
+>* rabbitmq-testï¼šrabbitmqåŸºæœ¬ä½¿ç”¨ ç‚¹åˆ°ç‚¹ã€å¹¿æ’­
